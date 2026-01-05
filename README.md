@@ -20,6 +20,8 @@ Raw and processed datasets are stored locally and are intentionally excluded fro
 
 Only documentation files (e.g. `.md`) inside `data/` are tracked.
 
+`raw\` data and `cleaned\` data are organized by **data source (eg, HMD, UNWPP) -> type of data (eg, life tables, population) -> country or region (if applicable)**.
+
 ---
 
 ## Data policy

@@ -2,6 +2,8 @@
 # Excluded from commmit
 # ------------------
 
+misc/**
+
 # ------------------
 # Data (ignore by default)
 # ------------------

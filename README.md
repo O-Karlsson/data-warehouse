@@ -48,10 +48,8 @@ Only documentation files (e.g. `.md`) inside `data/` are tracked.
 Each dataset directory under `data/raw/` should include a short provenance file
 (e.g. `SOURCE.md`) describing:
 
-- Data provider
-- Version and access date
-- Source URL
-- Download method
+- Where data can be accessed online
+- Either date when SOURCE.md was created or data were downloaded
 - Coverage and known limitations
 
 Each dataset directory under `data/cleaned/` should include a `DATASET_NOTES.md`

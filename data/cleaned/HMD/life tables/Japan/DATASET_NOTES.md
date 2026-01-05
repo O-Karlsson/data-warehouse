@@ -1,9 +1,8 @@
 # Dataset notes
 
-_Generated on 2026-01-02 18:48:51_
+_Generated on 2026-01-05 16:43:28_
 
--  This dataset contains all cause mortality probabilites for Japan, USA, UK
--  , and Italy at subnational levels (regions) for children under age 15.
--  Data were obtained from the Institute for Health Metrics and Evaluation (IHME)
--  Global Burden of Disease (GBD) Results tool.
--  Age intervals vary and some overlap.
+-  This dataset contains 1x1 period life tables for Canada and its subregions.
+-  Source data originate from the Human Mortality Database (HMD).
+-  Life tables are harmonized to single-year age intervals.
+-  Variable names (mostly) follow standard life table notations (although in lowercase).

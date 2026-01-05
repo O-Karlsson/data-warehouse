@@ -195,6 +195,28 @@ readr::write_csv(clean_df, file.path(dir_clean, "data.csv"))
 # ------------------------------------------------------------------------------
 # Dataset-level notes (general documentation)
 # ------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
+# Write SOURCES.md to keep  with raw data (only if at least one file was downloaded)
+# ------------------------------------------------------------------------------
+
+sources_md <- file.path(dir_raw, "SOURCES.md")
+if (!file.exists(sources_md)) {
+  writeLines(
+    c(
+      "Access point: https://dataverse.harvard.edu/dataverse/usfmdb/",
+      paste0("This file was created on: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
+    ),
+    sources_md
+  )
+  message("Wrote sources file: ", sources_md)
+}
+
+# ------------------------------------------------------------------------------
+# Write info to keep with cleaned data
+# ------------------------------------------------------------------------------
+
 dataset_notes <- c(
   "This dataset contains 1x1 period life tables for USA total and all U.S. states.",
   "Source: Harvard Dataverse DOI: 10.7910/DVN/19WYUX (zip downloaded via Dataverse API datafile id 11378078).",

@@ -17,6 +17,7 @@ dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 # https://www-genesis.destatis.de/datenbank/online/statistic/12612/table/12612-0100/search/s/YmlydGhz
 
 raw_csv <- file.path(RAW_DIR, paste0(TABLE, ".csv"))
+sources_md <- file.path(RAW_DIR, "SOURCES.md")
 
 if (!file.exists(raw_csv) || file.info(raw_csv)$size == 0) {
   
@@ -35,6 +36,24 @@ if (!file.exists(raw_csv) || file.info(raw_csv)$size == 0) {
   
   # Save raw snapshot
   readr::write_csv(tab, raw_csv)
+  
+  # Write source + download timestamp (only when data is downloaded)
+  writeLines(
+    c(
+      "# Sources",
+      "",
+      sprintf("- **Dataset:** Destatis GENESIS-Online table %s (Births)", TABLE),
+      "- **Source:** German Federal Statistical Office (Destatis), GENESIS-Online",
+      "- **Access:** via restatis::gen_table() (GENESIS API)",
+      sprintf("- **Downloaded on:** %s", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")),
+      sprintf("- **Saved file:** %s", basename(raw_csv)),
+      "",
+      "Manual download page (if API unavailable):",
+      "https://www-genesis.destatis.de/datenbank/online/statistic/12612/table/12612-0100/search/s/YmlydGhz"
+    ),
+    sources_md
+  )
+  
   
 } else {
   

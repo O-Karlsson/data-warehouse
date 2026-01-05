@@ -1,6 +1,6 @@
 # Dataset notes
 
-_Generated on 2026-01-05 15:02:38_
+_Generated on 2026-01-05 16:43:48_
 
 -  This dataset contains 1x1 period life tables for USA total and all U.S. states.
 -  Source: Harvard Dataverse DOI: 10.7910/DVN/19WYUX (zip downloaded via Dataverse API datafile id 11378078).

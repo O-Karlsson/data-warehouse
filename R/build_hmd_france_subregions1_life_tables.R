@@ -195,14 +195,35 @@ readr::write_csv(clean_df, file.path(dir_clean, "data.csv"))
 # Edit the content below as needed.
 # ------------------------------------------------------------
 
+
+# ------------------------------------------------------------------------------
+# Write SOURCES.md to keep  with raw data (only if at least one file was downloaded)
+# ------------------------------------------------------------------------------
+
+sources_md <- file.path(dir_raw, "SOURCES.md")
+if (!file.exists(sources_md)) {
+  writeLines(
+    c(
+      "Access point: https://frdata.org/fr/french-human-mortality-database/",
+      paste0("This file was created on: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"))
+    ),
+    sources_md
+  )
+  message("Wrote sources file: ", sources_md)
+}
+
+# ------------------------------------------------------------------------------
+# Write info to keep with cleaned data
+# ------------------------------------------------------------------------------
+
 dataset_notes <- c(
   "This dataset contains 1x1 period life tables for Canada and its subregions.",
   "Source data originate from the Human Mortality Database (HMD).",
   "Life tables are harmonized to single-year age intervals.",
   "Variable names (mostly) follow standard life table notations (although in lowercase)."
 )
-
 notes_path <- file.path(dir_clean, "DATASET_NOTES.md")
+
 
 notes_lines <- c(
   "# Dataset notes",

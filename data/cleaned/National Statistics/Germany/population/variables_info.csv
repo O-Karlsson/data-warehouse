@@ -1,5 +1,5 @@
 "var","var_label","notes"
 "region_name","Name of location",""
 "sex","Sex","1=male, 2=female, 3=both"
-"year","Calendar year",""
+"year","Calendar year","End of year"
 "population","Population",""

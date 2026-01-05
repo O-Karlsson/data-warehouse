@@ -1,0 +1,72 @@
+# ------------------
+# Excluded from commmit
+# ------------------
+
+# ------------------
+# Data (ignore by default)
+# ------------------
+data/**
+
+# Allow documentation files inside data
+!data/**/
+!data/**/*.md
+
+# ------------------
+# In-progress and retired code
+# ------------------
+R/in_progress/
+R/retired/
+
+# ------------------
+# RStudio local state
+# ------------------
+.Rproj.user/
+
+# ------------------
+# Local package library
+# ------------------
+renv/
+
+# ------------------
+# Saved workspace and temp files
+# ------------------
+.RData
+.RDataTmp*
+
+# ------------------
+# Command history
+# ------------------
+.Rhistory
+
+# ------------------
+# Project startup profile
+# ------------------
+.Rprofile
+
+
+# ------------------
+# OS
+# ------------------
+.DS_Store
+Thumbs.db
+
+# ------------------
+# Safety net: ignore common data formats anywhere
+# ------------------
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.rds
+*.rda
+*.dta
+*.sav
+*.zip
+*.gz
+
+# ------------------
+# Explicit exceptions (must come last)
+# ------------------
+!data/**/variables_info.csv

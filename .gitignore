@@ -27,7 +27,7 @@ R/retired/
 # ------------------
 # Local package library
 # ------------------
-renv/
+renv/library/
 
 # ------------------
 # Saved workspace and temp files
@@ -67,6 +67,7 @@ Thumbs.db
 *.sav
 *.zip
 *.gz
+*.rdhs.json
 
 # ------------------
 # Explicit exceptions (must come last)

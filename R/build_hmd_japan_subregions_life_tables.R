@@ -218,7 +218,7 @@ readr::write_csv(clean_df, file.path(dir_clean, "data.csv"))
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-# Write SOURCES.md to keep  with raw data (only if at least one file was downloaded)
+# Write SOURCES.md to keep  with raw data
 # ------------------------------------------------------------------------------
 
 sources_md <- file.path(dir_raw, "SOURCES.md")

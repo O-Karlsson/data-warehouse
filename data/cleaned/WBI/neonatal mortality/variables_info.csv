@@ -1,0 +1,6 @@
+"var","var_label","notes"
+"location","Location name","Country, region, income group, etc."
+"iso3","ISO 3166-1 alpha-3 country code",""
+"region","Region",""
+"year","Calendar year",""
+"nmr","Neonatal mortality rate (per 1,000 live births)","Deaths during the first 28 days of life per 1,000 live births"

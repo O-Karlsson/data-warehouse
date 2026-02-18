@@ -1,0 +1,6 @@
+"var","var_label","notes"
+"iso3","ISO3 code (as provided in WPP metadata)","This file includes only non-missing ISO3."
+"location","UN WPP printable location name","Renamed from LocPrintName."
+"region","UN WPP region name","Derived from ParentTypeName == 'Region' (ParentPrintName)."
+"subregion","UN WPP subregion name","Derived from ParentTypeName == 'Subregion' (ParentPrintName)."
+"incomegr","UN WPP income group name","Derived from ParentTypeName == 'Income Group' (ParentPrintName), with select aggregates removed."

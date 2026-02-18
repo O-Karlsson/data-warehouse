@@ -107,11 +107,12 @@ dir.create(cache_root, recursive = TRUE, showWarnings = FALSE)
 #   DHS FileType strings as returned by get_available_datasets().
 #   Example: "Individual Recode" (IR), "Household Recode" (HR), etc.
 FILETYPES_WANTED <- c(
-  "Wealth Index",
-  "Individual Recode",
-  "Household Recode",
-  "Geographic Data",
-  "Births Recode"
+  # "Wealth Index",
+  # "Individual Recode",
+  # "Household Recode",
+  # "Geographic Data",
+  # "Births Recode",
+  "Household Member Recode"
 )
 
 # SURVEY_YEAR_RANGE:
@@ -360,6 +361,9 @@ dataset_notes <- c(
   "List of surveys, survey IDs, years, country names and other useful information stored in metadata.csv",
   "See codebooks and other info: https://dhsprogram.com/publications/publication-dhsg4-dhs-questionnaires-and-manuals.cfm."
 )
+
+notes_path <- file.path(CLEAN_ROOT, "DATASET_NOTES.md")
+
 notes_lines <- c(
   "# Dataset notes",
   "",

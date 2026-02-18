@@ -1,0 +1,3 @@
+"var","var_label","notes"
+"location","UN WPP printable location name","Renamed from LocPrintName."
+"iso3","ISO3 code (as provided in WPP metadata)","Renamed from ISO3Code; may be blank for non-country aggregates."

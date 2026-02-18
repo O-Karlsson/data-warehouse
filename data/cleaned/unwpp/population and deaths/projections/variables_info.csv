@@ -1,0 +1,8 @@
+"var","var_label","notes"
+"LocID","UN WPP location identifier",""
+"year","Calendar year",""
+"age","Age (years), single-year age group start","Single-year age; interpreted as start of age interval."
+"iso3","ISO3 country code",""
+"sex","Sex identifier","1=Male, 2=Female, 3=Total (created by reshaping wide columns)."
+"pop","Population count","Derived from PopMale/PopFemale/PopTotal after reshaping. See UN WPP documentation for population definition."
+"deaths","Number of deaths","Derived from DeathMale/DeathFemale/DeathTotal after reshaping. See UN WPP documentation for deaths definition."

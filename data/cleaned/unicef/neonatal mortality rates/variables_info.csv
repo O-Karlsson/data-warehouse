@@ -1,0 +1,7 @@
+"var","var_label","notes"
+"iso3","ISO3 country code","Renamed from ISO.Code."
+"location","Country name","Renamed from Country.Name."
+"year","Calendar year (floor of original year label)","Original year columns are labeled like 1952.5; converted via floor()."
+"nmr_l","Neonatal mortality rate (lower uncertainty bound)","Derived from Uncertainty.Bounds* == Lower."
+"nmr","Neonatal mortality rate (median estimate)","Derived from Uncertainty.Bounds* == Median."
+"nmr_u","Neonatal mortality rate (upper uncertainty bound)","Derived from Uncertainty.Bounds* == Upper."

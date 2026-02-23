@@ -2,14 +2,16 @@
 #
 # PURPOSE
 # -------
-# Download, clean, join, and reshape UN WPP 2024 population and deaths data
+# Download, clean, join, and reshape UN WPP 2024 population, deaths, and exposure data
 # (single age, sex, year), keeping estimates and projections separate.
 #
-# Files (4 total):
+# Files (6 total):
 #  1) Population by single age/sex, estimates   (1950–2023)
 #  2) Deaths by single age/sex, estimates       (1950–2023)
-#  3) Population by single age/sex, projections (2024–2100)
-#  4) Deaths by single age/sex, projections     (2024–2100)
+#  3) Exposure by single age/sex, estimates     (1950–2023)
+#  4) Population by single age/sex, projections (2024–2100)
+#  5) Deaths by single age/sex, projections     (2024–2100)
+#  6) Exposure by single age/sex, projections   (2024–2100)
 #
 # Join keys:
 #   LocID, Time, AgeGrpStart
@@ -17,9 +19,10 @@
 # Reshape:
 #   PopMale/PopFemale/PopTotal   -> pop   with sex=1/2/3
 #   DeathMale/DeathFemale/DeathTotal -> deaths with sex=1/2/3
+#   PopMale/PopFemale/PopTotal   -> exposure with sex=1/2/3  (from exposure files)
 #
 # Keep variables:
-#   LocID, Location, Time, AgeGrpStart, ISO3_code, deaths, pop, sex
+#   LocID, Location, Time, AgeGrpStart, ISO3_code, deaths, pop, exposure, sex
 #
 # Rename:
 #   Location    -> location
@@ -47,6 +50,10 @@
 #     https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_DeathsBySingleAgeSex_Medium_1950-2023.csv.gz
 #   Deaths projections:
 #     https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_DeathsBySingleAgeSex_Medium_2024-2100.csv.gz
+#   Exposure estimates:
+#     https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_PopulationExposureBySingleAgeSex_Medium_1950-2023.csv.gz
+#   Exposure projections:
+#     https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_PopulationExposureBySingleAgeSex_Medium_2024-2100.csv.gz
 
 # ------------------------------------------------------------------------------
 # Setup
@@ -65,11 +72,13 @@ suppressPackageStartupMessages({
 URLS <- list(
   estimates = list(
     pop   = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_PopulationBySingleAgeSex_Medium_1950-2023.csv.gz",
-    deaths = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_DeathsBySingleAgeSex_Medium_1950-2023.csv.gz"
+    deaths = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_DeathsBySingleAgeSex_Medium_1950-2023.csv.gz",
+    exposure = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_PopulationExposureBySingleAgeSex_Medium_1950-2023.csv.gz"
   ),
   projections = list(
     pop   = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_PopulationBySingleAgeSex_Medium_2024-2100.csv.gz",
-    deaths = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_DeathsBySingleAgeSex_Medium_2024-2100.csv.gz"
+    deaths = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_DeathsBySingleAgeSex_Medium_2024-2100.csv.gz",
+    exposure = "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_PopulationExposureBySingleAgeSex_Medium_2024-2100.csv.gz"
   )
 )
 
@@ -129,6 +138,11 @@ read_pop <- function(path) {
   )
 }
 
+# Exposure files have the same column names as population files (PopMale/PopFemale/PopTotal)
+read_exposure <- function(path) {
+  read_pop(path)
+}
+
 read_deaths <- function(path) {
   vroom::vroom(
     file       = path,
@@ -152,21 +166,31 @@ for (period in names(URLS)) {
   
   u_pop <- URLS[[period]]$pop
   u_dea <- URLS[[period]]$deaths
+  u_exp <- URLS[[period]]$exposure
   
   f_pop <- file.path(dir_raw, basename(utils::URLdecode(u_pop)))
   f_dea <- file.path(dir_raw, basename(utils::URLdecode(u_dea)))
+  f_exp <- file.path(dir_raw, basename(utils::URLdecode(u_exp)))
   
   # 1) Download raw
   download_if_needed(u_pop, f_pop)
   download_if_needed(u_dea, f_dea)
+  download_if_needed(u_exp, f_exp)
   
   # 2) Read (select only needed cols)
   pop <- read_pop(f_pop)
   dea <- read_deaths(f_dea)
+  exp <- read_exposure(f_exp)
   
   # 3) Join + reshape (fast + single pivot)
+  #    NOTE: Exposure files use the same sex-specific column names as population.
   df_clean <- pop %>%
     left_join(dea, by = c("LocID", "Time", "AgeGrpStart")) %>%
+    left_join(
+      exp %>% select(LocID, Time, AgeGrpStart, PopMale, PopFemale, PopTotal),
+      by = c("LocID", "Time", "AgeGrpStart"),
+      suffix = c("", "_exp")
+    ) %>%
     # normalize names for a single pivot_longer with .value
     rename(
       pop_Male    = PopMale,
@@ -174,10 +198,17 @@ for (period in names(URLS)) {
       pop_Total   = PopTotal,
       deaths_Male   = DeathMale,
       deaths_Female = DeathFemale,
-      deaths_Total  = DeathTotal
+      deaths_Total  = DeathTotal,
+      exposure_Male   = PopMale_exp,
+      exposure_Female = PopFemale_exp,
+      exposure_Total  = PopTotal_exp
     ) %>%
     pivot_longer(
-      cols      = c(pop_Male, pop_Female, pop_Total, deaths_Male, deaths_Female, deaths_Total),
+      cols      = c(
+        pop_Male, pop_Female, pop_Total,
+        deaths_Male, deaths_Female, deaths_Total,
+        exposure_Male, exposure_Female, exposure_Total
+      ),
       names_to  = c(".value", "sex_name"),
       names_sep = "_"
     ) %>%
@@ -196,6 +227,7 @@ for (period in names(URLS)) {
       ISO3_code,
       deaths,
       pop,
+      exposure,
       sex
     ) %>%
     rename(
@@ -272,10 +304,10 @@ if (!file.exists(sources_md)) {
 # ------------------------------------------------------------------------------
 
 dataset_notes <- c(
-  "This dataset combines UN WPP 2024 population counts and deaths by location, year, and single-year age.",
-  "Within each period (estimates vs projections), a population file and a deaths file are downloaded and joined on LocID, Time, and AgeGrpStart.",
+  "This dataset combines UN WPP 2024 population counts, deaths, and population exposure by location, year, and single-year age.",
+  "Within each period (estimates vs projections), population, deaths, and exposure files are downloaded and joined on LocID, Time, and AgeGrpStart.",
   "The joined data are reshaped from wide sex-specific columns to long format.",
-  "Sex-specific columns PopMale/PopFemale/PopTotal and DeathMale/DeathFemale/DeathTotal are converted to rows with variables pop and deaths and an integer sex code (1=Male, 2=Female, 3=Total).",
+  "Sex-specific columns PopMale/PopFemale/PopTotal (population), DeathMale/DeathFemale/DeathTotal (deaths), and PopMale/PopFemale/PopTotal (exposure) are converted to rows with variables pop, deaths, exposure and an integer sex code (1=Male, 2=Female, 3=Total).",
   "Minimal harmonization is performed: ISO3_code->iso3, Time->year, AgeGrpStart->age.",
   "Estimates and projections are stored separately and are not combined in the cleaned outputs.",
   "Units/definitions (e.g., mid-year population vs period exposure; deaths definition) follow UN WPP documentation and may differ across WPP vintages."
@@ -297,7 +329,7 @@ message("Wrote dataset notes: ", notes_path)
 # ------------------------------------------------------------
 
 var_dict <- data.frame(
-  var = c("LocID", "year", "age", "iso3", "sex", "pop", "deaths"),
+  var = c("LocID", "year", "age", "iso3", "sex", "pop", "deaths", "exposure"),
   var_label = c(
     "UN WPP location identifier",
     "Calendar year",
@@ -305,7 +337,8 @@ var_dict <- data.frame(
     "ISO3 country code",
     "Sex identifier",
     "Population count",
-    "Number of deaths"
+    "Number of deaths",
+    "Population exposure"
   ),
   notes = c(
     "",
@@ -314,7 +347,8 @@ var_dict <- data.frame(
     "",
     "1=Male, 2=Female, 3=Total (created by reshaping wide columns).",
     "Derived from PopMale/PopFemale/PopTotal after reshaping. See UN WPP documentation for population definition.",
-    "Derived from DeathMale/DeathFemale/DeathTotal after reshaping. See UN WPP documentation for deaths definition."
+    "Derived from DeathMale/DeathFemale/DeathTotal after reshaping. See UN WPP documentation for deaths definition.",
+    "Derived from PopMale/PopFemale/PopTotal in the exposure files after reshaping. See UN WPP documentation for exposure definition."
   ),
   stringsAsFactors = FALSE
 )

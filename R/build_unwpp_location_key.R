@@ -159,6 +159,10 @@ df_iso_regions <- df_clean %>%
     values_fn   = dplyr::first,
     values_fill = NA_character_
   ) %>%
+  mutate(
+    subregion = dplyr::coalesce(subregion, region),
+    incomegr  = dplyr::coalesce(incomegr, "No income group available")
+  ) %>%
   select(iso3, location, region, subregion, incomegr) %>%
   arrange(iso3)
 

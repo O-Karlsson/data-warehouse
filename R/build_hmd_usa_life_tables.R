@@ -149,6 +149,23 @@ clean_df <- do.call(rbind, Map(function(path, g, s) {
 }, index$path, index$geocode, index$sex))
 
 # ------------------------------------------------------------------------------
+# 3b) Add 'name' column (state name / DC / USA)
+# ------------------------------------------------------------------------------
+# Base R mapping:
+#   state.abb -> state.name
+# Note: base R doesn't include DC, and obviously not USA; add manually.
+state_name_lookup <- setNames(state.name, state.abb)
+
+clean_df$name <- unname(state_name_lookup[clean_df$geocode])
+
+# Manually handle special cases (and any missing values)
+clean_df$name[clean_df$geocode == "DC"]  <- "District of Columbia"
+clean_df$name[clean_df$geocode == "USA"] <- "United States"
+
+# If any state codes still unmapped, keep them as NA (or set to geocode if you prefer)
+# clean_df$name[is.na(clean_df$name)] <- clean_df$geocode[is.na(clean_df$name)]
+
+# ------------------------------------------------------------------------------
 # 4) Write outputs (parquet + dta + csv)
 # ------------------------------------------------------------------------------
 # *****************************************************************************
@@ -222,6 +239,7 @@ dataset_notes <- c(
   "Source: Harvard Dataverse DOI: 10.7910/DVN/19WYUX (zip downloaded via Dataverse API datafile id 11378078).",
   "Raw input is a zip containing HMD-style text files with 2 header lines (metadata + blank) followed by a header row.",
   "geocode is the state postal code for states (AK, AL, ...) and 'USA' for national.",
+  "name is the full state/area name (from base R state.abb/state.name plus manual values for DC and USA).",
   "sex is coded as 1=male, 2=female, 3=both (from file suffix m/f/b)."
 )
 
@@ -242,18 +260,20 @@ message("Wrote dataset notes: ", notes_path)
 # ------------------------------------------------------------------------------
 # (Keep this similar to Canada: list the main identifiers + any special-case vars)
 var_dict <- data.frame(
-  var = c("year", "sex", "age", "geocode"),
+  var = c("year", "sex", "age", "geocode", "name"),
   var_label = c(
     "Calendar year",
     "Sex",
     "Age in years",
-    "Code for region (state postal code or USA)"
+    "Code for region (state postal code or USA)",
+    "Full name of region (state name / DC / United States)"
   ),
   notes = c(
     "",
     "1=male, 2=female, 3=both",
     "Single-year age. 110+ stored as 110",
-    ""
+    "",
+    "From base R state.abb/state.name; DC and USA added manually."
   ),
   stringsAsFactors = FALSE
 )

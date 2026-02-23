@@ -1,0 +1,7 @@
+"var","var_label","notes"
+"location_id","IHME ID for location","See IHME Keys file for location codes (from the same export/download)."
+"location_name","Name of location",""
+"sex","Sex","1=male, 2=female, 3=both"
+"age_name","Age interval","Expected to be 'Early Neonatal' / 'Late Neonatal' / 'Neonatal' depending on export settings; verify in data."
+"year","Calendar year",""
+"qx","Probability of death (before age 28 days)",""

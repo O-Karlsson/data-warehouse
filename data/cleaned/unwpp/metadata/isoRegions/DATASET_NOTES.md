@@ -1,6 +1,6 @@
 # Dataset notes
 
-_Generated on 2026-02-18 14:29:20_
+_Generated on 2026-02-19 09:11:27_
 
 - This dataset is a simplified ISO3-to-region lookup derived from UN WPP 2024 locations metadata (Aggregation_Lists sheet).
 - Rows are restricted to ParentTypeName in {Region, Subregion, Income Group}.

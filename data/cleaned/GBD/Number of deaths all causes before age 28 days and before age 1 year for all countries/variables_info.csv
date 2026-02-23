@@ -1,0 +1,7 @@
+"var","var_label","notes"
+"location_id","IHME ID for location","See IHME Keys file for location codes (from the same export/download)."
+"location_name","Name of location",""
+"sex","Sex","1=male, 2=female, 3=both"
+"year","Calendar year",""
+"dth1","Number of deaths before age 1 year","Derived from rows where age_name == '<1 year' (val)."
+"dthn","Number of deaths before age 28 days","Derived from rows where age_name == '<28 days' (val)."

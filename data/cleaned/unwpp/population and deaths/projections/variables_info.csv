@@ -6,3 +6,4 @@
 "sex","Sex identifier","1=Male, 2=Female, 3=Total (created by reshaping wide columns)."
 "pop","Population count","Derived from PopMale/PopFemale/PopTotal after reshaping. See UN WPP documentation for population definition."
 "deaths","Number of deaths","Derived from DeathMale/DeathFemale/DeathTotal after reshaping. See UN WPP documentation for deaths definition."
+"exposure","Population exposure","Derived from PopMale/PopFemale/PopTotal in the exposure files after reshaping. See UN WPP documentation for exposure definition."

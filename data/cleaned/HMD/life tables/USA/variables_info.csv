@@ -3,3 +3,4 @@
 "sex","Sex","1=male, 2=female, 3=both"
 "age","Age in years","Single-year age. 110+ stored as 110"
 "geocode","Code for region (state postal code or USA)",""
+"name","Full name of region (state name / DC / United States)","From base R state.abb/state.name; DC and USA added manually."

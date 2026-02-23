@@ -4,10 +4,9 @@
 # Run from the warehouse root:
 #   source("R/build_ihme_keys.R")
 
-VINTAGE <- "2025-10-23"
 
 RAW_DIR <- file.path("data", "raw", "ihme_keys")
-OUT_DIR <- file.path("data", "cleaned", "ihme_keys", VINTAGE)
+OUT_DIR <- file.path("data", "cleaned", "ihme_keys")
 dir.create(RAW_DIR, recursive = TRUE, showWarnings = FALSE)
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 

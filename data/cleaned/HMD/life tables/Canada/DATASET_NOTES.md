@@ -1,6 +1,6 @@
 # Dataset notes
 
-_Generated on 2026-02-18 11:53:12_
+_Generated on 2026-01-05 16:42:34_
 
 -  This dataset contains 1x1 period life tables for Canada and its subregions.
 -  Source data originate from the Human Mortality Database (HMD).

@@ -108,11 +108,12 @@ dir.create(cache_root, recursive = TRUE, showWarnings = FALSE)
 #   Example: "Individual Recode" (IR), "Household Recode" (HR), etc.
 FILETYPES_WANTED <- c(
   # "Wealth Index",
-   "Individual Recode"
+  # "Individual Recode"
   # "Household Recode",
   # "Geographic Data",
-  # "Births Recode",
+  # "Births Recode"
   # "Household Member Recode"
+  "Children's Recode"
 )
 
 # SURVEY_YEAR_RANGE:

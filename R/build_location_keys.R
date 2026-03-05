@@ -50,6 +50,7 @@ write_outputs <- function(df, out_dir, stem = "data") {
 in_un   <- file.path("data", "cleaned", "unwpp", "metadata", "isoRegions", "data.csv")
 in_ihme <- file.path("data", "cleaned", "ihme_keys", "ihme_location_hierarchy.csv")
 in_dhs  <- file.path("data", "cleaned", "DHS", "metadata.csv")
+in_cih  <- file.path("data", "manual", "cih_regions.csv")
 
 out_dir <- file.path("data", "cleaned", "keys", "location_keys")
 qa_dir  <- file.path(out_dir, "_qa")
@@ -59,6 +60,7 @@ manual_overrides_path <- file.path("data", "manual", "keys", "location_key_overr
 stopifnot(file.exists(in_un))
 stopifnot(file.exists(in_ihme))
 stopifnot(file.exists(in_dhs))
+stopifnot(file.exists(in_cih))
 
 # -----------------------------
 # Read UNWPP isoRegions
@@ -172,6 +174,25 @@ dhs <- dhs_raw %>%
   filter(CountryName != "Nigeria (Ondo State)")
 
 # -----------------------------
+# Read CIH regions
+# -----------------------------
+
+cih_raw <- readr::read_csv(
+  in_cih,
+  show_col_types = FALSE,
+  locale = readr::locale(encoding = "UTF-8")
+)
+
+stopifnot(all(c("iso3", "cih_region") %in% names(cih_raw)))
+
+cih <- cih_raw %>%
+  transmute(
+    iso3 = as.character(iso3),
+    cih_region = as.character(cih_region)
+  ) %>%
+  distinct(iso3, .keep_all = TRUE)
+
+# -----------------------------
 # Optional manual overrides
 # -----------------------------
 
@@ -215,10 +236,32 @@ key <- key_exact %>%
   mutate(ihme_location = coalesce(ihme_location, ihme_location_from_id)) %>%
   # Attach DHS 2-letter country code
   left_join(dhs, by = c("unwpp_location" = "CountryName")) %>%
+  # Attach CIH region
+  left_join(cih, by = "iso3") %>%
+  # NCD-RisC country naming convention
+  mutate(
+    NCD_RisC_country = case_when(
+      location_label == "Hong Kong" ~ "China (Hong Kong SAR)",
+      location_label == "C\u00f4te d'Ivoire" ~ "Cote d'Ivoire",
+      location_label == "Czechia" ~ "Czech Republic",
+      location_label == "Congo DR" ~ "DR Congo",
+      location_label == "Guinea-Bissau" ~ "Guinea Bissau",
+      location_label == "Lao" ~ "Lao PDR",
+      location_label == "North Macedonia" ~ "Macedonia (TFYR)",
+      location_label == "Micronesia" ~ "Micronesia (Federated States of)",
+      location_label == "Palestine" ~ "Occupied Palestinian Territory",
+      location_label == "Russia" ~ "Russian Federation",
+      location_label == "Eswatini" ~ "Swaziland",
+      location_label == "Syria" ~ "Syrian Arab Republic",
+      location_label == "T\u00fcrkiye" ~ "Turkey",
+      location_label == "United States" ~ "United States of America",
+      TRUE ~ location_label
+    )
+  ) %>%
   select(-ihme_location_from_id, -neat_location) %>%   # <-- drop here
   relocate(
     unwpp_location, location_label, ihme_location, location_id,
-    iso3, dhs_countrycode, region, subregion, incomegr, match_method
+    iso3, dhs_countrycode, cih_region, region, subregion, incomegr, NCD_RisC_country, match_method
   )
 
 

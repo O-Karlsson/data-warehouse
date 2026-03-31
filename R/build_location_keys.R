@@ -305,6 +305,88 @@ message("QA wrote: ", qa_dir)
 
 write_outputs(key, out_dir, stem = "data")
 
+# -----------------------------
+# Dataset notes + variable dictionary
+# -----------------------------
+
+notes_path <- file.path(out_dir, "DATASET_NOTES.md")
+notes_lines <- c(
+  "# Dataset notes",
+  "",
+  sprintf("_Generated on %s_", format(Sys.time(), "%Y-%m-%d %H:%M:%S")),
+  "",
+  "- This dataset is a country-level crosswalk between UN WPP locations and IHME location hierarchy identifiers.",
+  "- The base country list comes from `data/cleaned/unwpp/metadata/isoRegions/data.csv`.",
+  "- IHME matches are restricted to `level == 3`, which this script treats as country-level IHME locations.",
+  "- Matching is done primarily on normalized location names (`neat_location`), with optional manual overrides from `data/manual/keys/location_key_overrides.csv`.",
+  "- Additional lookup columns are attached from DHS metadata (`dhs_countrycode`) and the manual CIH region file (`cih_region`).",
+  "- `match_method` records whether the IHME match came from exact normalized-name matching or a manual override."
+)
+writeLines(notes_lines, notes_path)
+
+var_dict <- data.frame(
+  var = c(
+    "unwpp_location",
+    "location_label",
+    "ihme_location",
+    "location_id",
+    "iso3",
+    "dhs_countrycode",
+    "cih_region",
+    "region",
+    "subregion",
+    "incomegr",
+    "NCD_RisC_country",
+    "match_method"
+  ),
+  var_label = c(
+    "UN WPP location name",
+    "Clean display label for the location",
+    "IHME country location name",
+    "IHME numeric location identifier",
+    "ISO3 country code",
+    "DHS 2-letter country code",
+    "CIH region label",
+    "UN WPP region name",
+    "UN WPP subregion name",
+    "UN WPP income group label",
+    "Country name formatted for NCD-RisC compatibility",
+    "How the IHME match was assigned"
+  ),
+  notes = c(
+    "Original country/location name from the UN WPP isoRegions input.",
+    "User-facing label used for cleaner display; some names are shortened or standardized in this script.",
+    "Country name from the IHME location hierarchy file after matching on normalized names or override.",
+    "Integer key from `data/cleaned/ihme_keys/ihme_location_hierarchy.csv`; restricted to country-level rows (`level == 3`).",
+    "ISO3 code carried from the UN WPP isoRegions input.",
+    "Two-letter DHS code joined from `data/cleaned/DHS/metadata.csv`.",
+    "Region grouping joined from `data/manual/cih_regions.csv`.",
+    "Broad UN WPP region from the isoRegions input.",
+    "UN WPP subregion from the isoRegions input.",
+    "UN WPP income group from the isoRegions input.",
+    "Country label harmonized to the naming conventions used in NCD-RisC source files.",
+    "Currently `exact_neat_location` for normalized exact-name matches or `manual_override` when the override file supplies the IHME id."
+  ),
+  stringsAsFactors = FALSE
+)
+
+vars_path <- file.path(out_dir, "variables_info.csv")
+write.csv(var_dict, vars_path, row.names = FALSE, na = "")
+
+doc_warnings <- doc_warnings_for_var_dict(
+  key,
+  var_dict,
+  dict_name = "variables_info.csv",
+  df_name   = "key"
+)
+
+if (length(doc_warnings) > 0) {
+  warning(paste(doc_warnings, collapse = "\n"), call. = FALSE)
+}
+
+message("Wrote dataset notes: ", notes_path)
+message("Wrote variable dictionary: ", vars_path)
+
 message("UN rows: ", nrow(un))
 message("IHME unique location_id rows: ", nrow(ihme))
 message("Matched UN rows: ", sum(!is.na(key$location_id)))

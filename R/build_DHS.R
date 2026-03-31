@@ -107,13 +107,13 @@ dir.create(cache_root, recursive = TRUE, showWarnings = FALSE)
 #   DHS FileType strings as returned by get_available_datasets().
 #   Example: "Individual Recode" (IR), "Household Recode" (HR), etc.
 FILETYPES_WANTED <- c(
-  # "Wealth Index",
+   "Wealth Index"
   # "Individual Recode"
   # "Household Recode",
   # "Geographic Data",
   # "Births Recode"
   # "Household Member Recode"
-  "Children's Recode"
+  # "Children's Recode"
 )
 
 # SURVEY_YEAR_RANGE:

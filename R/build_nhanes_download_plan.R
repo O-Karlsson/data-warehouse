@@ -235,52 +235,17 @@ survey_relative_path <- function(url, survey_id, parent_page = NA_character_) {
 }
 
 nhanes_registry <- function() {
-  home <- xml2::read_html(HOME_URL)
-
-  specs <- tibble::tribble(
-    ~survey_id, ~survey_label, ~group,
-    "nhanes_iii", "NHANES III", "prior_1999",
-    "nhanes_ii", "NHANES II", "prior_1999",
-    "nhanes_i", "NHANES I", "prior_1999",
-    "hhanes", "Hispanic HANES", "prior_1999",
-    "nhes_i", "NHES I", "prior_1999",
-    "nhes_ii", "NHES II", "prior_1999",
-    "nhes_iii", "NHES III", "prior_1999",
-    "nhefs", "NHEFS", "ancillary",
-    "nnyfs_2012", "NNYFS", "ancillary"
-  )
-
-  specs %>%
-    rowwise() %>%
-    mutate(
-      entry_url = {
-        node <- rvest::html_element(
-          home,
-          xpath = sprintf("//a[normalize-space()='%s']", .data$survey_label)
-        )
-        href <- rvest::html_attr(node, "href")
-        absolute_url(HOME_URL, href)
-      }
-    ) %>%
-    ungroup()
-}
-
-continuous_survey_labels <- function() {
-  c(
-    "NHANES 2025-2026",
-    "NHANES 08/2021-08/2023",
-    "NHANES 2017-March 2020",
-    "NHANES 2019-2020",
-    "NHANES 2017-2018",
-    "NHANES 2015-2016",
-    "NHANES 2013-2014",
-    "NHANES 2011-2012",
-    "NHANES 2009-2010",
-    "NHANES 2007-2008",
-    "NHANES 2005-2006",
-    "NHANES 2003-2004",
-    "NHANES 2001-2002",
-    "NHANES 1999-2000"
+  tibble::tribble(
+    ~survey_id, ~survey_label, ~group, ~entry_url,
+    "nnyfs_2012", "NNYFS", "ancillary", "https://wwwn.cdc.gov/nchs/nhanes/search/nnyfs12.aspx",
+    "nhefs", "NHEFS", "ancillary", "https://wwwn.cdc.gov/nchs/nhanes/nhefs/default.aspx",
+    "hhanes", "Hispanic HANES", "prior_1999", "https://wwwn.cdc.gov/nchs/nhanes/hhanes/default.aspx",
+    "nhanes_iii", "NHANES III", "prior_1999", "https://wwwn.cdc.gov/nchs/nhanes/nhanes3/default.aspx",
+    "nhanes_ii", "NHANES II", "prior_1999", "https://wwwn.cdc.gov/nchs/nhanes/nhanes2/default.aspx",
+    "nhanes_i", "NHANES I", "prior_1999", "https://wwwn.cdc.gov/nchs/nhanes/nhanes1/default.aspx",
+    "nhes_iii", "NHES III", "prior_1999", "https://wwwn.cdc.gov/nchs/nhanes/nhes3/default.aspx",
+    "nhes_ii", "NHES II", "prior_1999", "https://wwwn.cdc.gov/nchs/nhanes/nhes2/default.aspx",
+    "nhes_i", "NHES I", "prior_1999", "https://wwwn.cdc.gov/nchs/nhanes/nhes1/default.aspx"
   )
 }
 
@@ -294,15 +259,59 @@ continuous_component_labels <- function() {
   )
 }
 
+continuous_cycle_sources <- function() {
+  tibble::tribble(
+    ~survey, ~cycle_page,
+    "NHANES 08/2021-08/2023", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?Cycle=2021-2023",
+    "NHANES 2017-March 2020", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?Cycle=2017-2020",
+    "NHANES 2019-2020", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2019",
+    "NHANES 2017-2018", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2017",
+    "NHANES 2015-2016", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2015",
+    "NHANES 2013-2014", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013",
+    "NHANES 2011-2012", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2011",
+    "NHANES 2009-2010", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2009",
+    "NHANES 2007-2008", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2007",
+    "NHANES 2005-2006", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2005",
+    "NHANES 2003-2004", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2003",
+    "NHANES 2001-2002", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2001",
+    "NHANES 1999-2000", "https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=1999"
+  )
+}
+
+get_cycle_component_links <- function(cycle_page, survey_label) {
+  page <- tryCatch(xml2::read_html(cycle_page), error = function(e) NULL)
+  if (is.null(page)) return(tibble::tibble())
+
+  anchors <- rvest::html_elements(page, "a")
+  if (length(anchors) == 0) return(tibble::tibble())
+
+  tibble::tibble(
+    survey = survey_label,
+    component_or_release = trimws(rvest::html_text2(anchors)),
+    href = rvest::html_attr(anchors, "href")
+  ) %>%
+    mutate(source_page = vapply(.data$href, absolute_url, FUN.VALUE = character(1), base_url = cycle_page)) %>%
+    filter(!is_blank(.data$source_page)) %>%
+    filter(.data$component_or_release %in% continuous_component_labels()) %>%
+    distinct(.data$survey, .data$component_or_release, .keep_all = TRUE)
+}
+
 get_home_continuous_component_pages <- function() {
-  home <- xml2::read_html(HOME_URL)
-  surveys <- continuous_survey_labels()
-  components <- continuous_component_labels()
+  cycles <- continuous_cycle_sources()
+  out <- vector("list", nrow(cycles))
 
-  out <- vector("list", length(surveys))
+  for (i in seq_len(nrow(cycles))) {
+    survey_label <- cycles$survey[[i]]
+    cycle_page <- cycles$cycle_page[[i]]
+    message("Discovering continuous components: ", survey_label)
 
-  for (i in seq_along(surveys)) {
-    survey_label <- surveys[[i]]
+    rows <- get_cycle_component_links(cycle_page, survey_label)
+    if (nrow(rows) > 0) {
+      out[[i]] <- rows
+      next
+    }
+
+    home <- xml2::read_html(HOME_URL)
     li <- rvest::html_element(
       home,
       xpath = sprintf("//a[normalize-space()='%s']/ancestor::li[1]", survey_label)

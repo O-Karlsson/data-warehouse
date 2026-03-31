@@ -14,6 +14,11 @@
 #
 # The plan CSV is treated as the source of truth for local folder structure.
 
+use_links_csv <- !identical(tolower(Sys.getenv("NHANES_USE_LINKS_CSV", "true")), "false")
+if (isTRUE(use_links_csv)) {
+  source("R/build_nhanes_from_links.R")
+} else {
+
 source("R/utils.R")
 
 suppressPackageStartupMessages({
@@ -872,3 +877,4 @@ message("Wrote: ", CONVERSION_FAILURES_CLEAN)
 message("Wrote: ", RAW_SOURCES_MD)
 message("Wrote: ", CLEAN_NOTES_MD)
 message("Done.")
+}
